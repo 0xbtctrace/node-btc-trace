@@ -16,12 +16,12 @@ const config = {
   openapi: '3.0.0',
   info: {
     title: 'Bitcoin Block Explorer API',
-    version: '0.0.2',
+    version: '0.0.1',
     description,
   },
   servers: [
     {
-      url: 'http://localhost:3000',
+      url: 'https://api.btctrace.ai',
     },
   ],
   tags: [
