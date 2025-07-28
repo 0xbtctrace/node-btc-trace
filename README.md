@@ -3,7 +3,7 @@
 An open-source, developer-friendly REST API built with **Node.js** and **Express** to explore Bitcoin blockchain data like blocks and chain status.  
 Powered by public APIs (like Blockstream), this project offers a clean, documented interface using **Swagger UI** and dynamic route annotations.
 
-> 📘 **API Docs:** [https://api.btctrace/docs](https://api.btctrace/docs)
+> 📘 **API Docs:** [https://api.btctrace.ai/docs](https://api.btctrace.ai/docs)
 
 ---
 
