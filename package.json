@@ -1,7 +1,7 @@
 {
-  "name": "btc-api-service",
-  "version": "0.0.2",
-  "description": "",
+  "name": "node-btc-tracer",
+  "version": "0.0.1",
+  "description": "A Node.js Bitcoin JSON-RPC API service to fetch blockchain data like block info, transaction details, and more.",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,9 +9,27 @@
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "stage": "cross-env NODE_ENV=stage node server.js"
   },
-  "keywords": [],
-  "author": "Nishanth Duraisamy",
-  "license": "ISC",
+  "keywords": [
+    "bitcoin",
+    "btc",
+    "bitcoin-core",
+    "bitcoin-rpc",
+    "json-rpc",
+    "blockchain",
+    "nodejs",
+    "express",
+    "swagger",
+    "bitcoin-api",
+    "bitcoin-blockchain",
+    "crypto",
+    "cryptocurrency",
+    "btc-rpc",
+    "btc-node",
+    "bitcoin-node",
+    "bitcoin-data"
+  ],
+  "author": "Liam Morris",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.8.4",
     "change-case": "^5.4.4",
