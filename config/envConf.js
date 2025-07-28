@@ -17,8 +17,6 @@ const envSchema = Joi.object({
   SELF_HOSTED_BTC_HOST: Joi.string().required(),
   SELF_HOSTED_BTC_USERNAME: Joi.number().required(),
   SELF_HOSTED_BTC_PASSWORD: Joi.string().required(),
-  QUICK_NODE_BTC_HOST: Joi.string().required(),
-  API_SERVICE_PUB: Joi.string().required(),
 }).unknown(); // Allow other unspecified variable
 
 // Validate the environment variables
@@ -36,6 +34,4 @@ export const envConfig = {
   SELF_HOSTED_BTC_HOST: envVars.SELF_HOSTED_BTC_HOST,
   SELF_HOSTED_BTC_USERNAME: envVars.SELF_HOSTED_BTC_USERNAME,
   SELF_HOSTED_BTC_PASSWORD: envVars.SELF_HOSTED_BTC_PASSWORD,
-  QUICK_NODE_BTC_HOST: envVars.QUICK_NODE_BTC_HOST,
-  API_SERVICE_PUB: envVars.API_SERVICE_PUB,
 };
