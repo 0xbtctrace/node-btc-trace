@@ -15,7 +15,7 @@ const envSchema = Joi.object({
   PORT: Joi.number().required(),
   CORS_CONFIG: Joi.string().required(),
   SELF_HOSTED_BTC_HOST: Joi.string().required(),
-  SELF_HOSTED_BTC_USERNAME: Joi.number().required(),
+  SELF_HOSTED_BTC_USERNAME: Joi.string().required(),
   SELF_HOSTED_BTC_PASSWORD: Joi.string().required(),
 }).unknown(); // Allow other unspecified variable
 
