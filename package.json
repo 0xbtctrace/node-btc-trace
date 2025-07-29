@@ -1,7 +1,7 @@
 {
-  "name": "node-btc-tracer",
+  "name": "node-btc-trace",
   "version": "0.0.1",
-  "description": "A Node.js Bitcoin JSON-RPC API service to fetch blockchain data like block info, transaction details, and more.",
+  "description": "An open-source, developer-friendly REST API built with Node.js and Express to explore Bitcoin blockchain data like blocks and chain status.",
   "main": "server.js",
   "type": "module",
   "scripts": {
