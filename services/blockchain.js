@@ -66,7 +66,7 @@ export const getGetBestblockhash = expressAsyncHandler(
  *         name: blockhash
  *         schema:
  *           type: string
- *           example: 000000000000000000020824e3901110a486c448c132afb336b4f6ebe7f505a2
+ *           example:
  *         required: true
  *         description: The block hash (64-character hex)
  *       - in: query
