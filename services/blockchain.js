@@ -159,32 +159,21 @@ export const getBlockCount = expressAsyncHandler(async (req, res, next) => {
 
 /**
  * @swagger
- * /blockchain/block/{blockhash}/filter:
+ * /blockchain/blockhash/{count}:
  *   get:
  *     tags:
- *       - Blockchain
- *     summary: Retrieve a block filter using the `getblockfilter` RPC method
- *     description: |
- *       Returns a compact filter for a specified block. This is useful for light clients to filter relevant transactions.
- *       Currently, only the `basic` filter type is supported.
+ *     - Blockchain
+ *     summary: Get block hash by block height
  *     parameters:
- *       - in: params
- *         name: blockhash
+ *       - in: path
+ *         name: count
+ *         schema:
+ *           type: integer
  *         required: true
- *         schema:
- *           type: string
- *         description: The hash of the block for which to retrieve the filter.
- *       - in: query
- *         name: filtertype
- *         required: false
- *         schema:
- *           type: string
- *           enum: [basic]
- *           default: basic
- *         description: The type of filter to retrieve. Only 'basic' is currently supported.
+ *         description: The block height to retrieve the hash for
  *     responses:
  *       200:
- *         description: Successfully retrieved block filter
+ *         description: Block hash result
  *         content:
  *           application/json:
  *             schema:
@@ -192,18 +181,70 @@ export const getBlockCount = expressAsyncHandler(async (req, res, next) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 data:
- *                   type: object
- *                   description: Block filter result from Bitcoin Core
- *                   example:
- *                     result:
- *                       filter: "01405c"
- *                       header: "142c3d..."
- *                     error: null
- *                     id: "curltest"
+ *                   type: string
+ *                   example: "00000000000000000001a63c..."
  *       400:
- *         description: Invalid or missing blockhash parameter
+ *         description: Invalid block height
+ */
+export const getBlockHash = expressAsyncHandler(async (req, res, next) => {
+  const { count } = req.params;
+
+  const schema = Joi.object({
+    count: Joi.number().integer().min(0).required(),
+  });
+
+  const { error, value } = schema.validate({ count });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getblockhash',
+    params: [Number(value.count)],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/block-header/{blockhash}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get block header by block hash
+ *     parameters:
+ *       - in: path
+ *         name: blockhash
+ *         schema:
+ *           type: string
+ *           example: "00000000000000000005b06ff2..."
+ *         required: true
+ *         description: The block hash (64-character hex)
+ *       - in: query
+ *         name: verbose
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         required: false
+ *         description: Whether to return JSON object (`true`) or raw hex string (`false`)
+ *     responses:
+ *       200:
+ *         description: Block header data or raw hex
  *         content:
  *           application/json:
  *             schema:
@@ -211,42 +252,908 @@ export const getBlockCount = expressAsyncHandler(async (req, res, next) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "`blockhash` query parameter is required and must be a string."
+ *                 data:
+ *                   oneOf:
+ *                     - type: object
+ *                     - type: string
+ *       400:
+ *         description: Invalid parameters
  */
-export const getBlockFilter = expressAsyncHandler(async (req, res, next) => {
-  const { query, params } = req;
+export const getBlockHeader = expressAsyncHandler(async (req, res, next) => {
+  const { blockhash } = req.params;
+  const { verbose = true } = req.query;
 
-  // validate with joi
   const schema = Joi.object({
     blockhash: Joi.string().length(64).required(),
-    filtertype: Joi.string().valid('basic').default('basic'),
+    verbose: Joi.boolean().optional(),
   });
 
   const { error, value } = schema.validate({
-    ...query,
-    ...params,
+    blockhash,
+    verbose: verbose === 'false' ? false : true, // handle query string parsing
   });
 
   if (error) {
     throw new ApiError(
       400,
       HTTP_ERR_CODES[400],
-      'Invalid request parameters',
+      'request validation failed',
       error.details.map((d) => d.message)
     );
   }
-  const { blockhash, filtertype } = value;
 
   const payload = {
     jsonrpc: '1.0',
     id: 'curltest',
-    method: 'getblockfilter',
-    params: [blockhash, filtertype],
+    method: 'getblockheader',
+    params: [value.blockhash, value.verbose],
   };
 
   const info = await getClient().post('/', payload);
-  return res.status(200).json({ success: true, data: info.data });
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/block-stats/{height}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get block statistics by height
+ *     parameters:
+ *       - in: path
+ *         name: height
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The block height to fetch statistics for
+ *     responses:
+ *       200:
+ *         description: Block statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid block height
+ */
+export const getBlockStats = expressAsyncHandler(async (req, res, next) => {
+  const { height } = req.params;
+
+  const schema = Joi.object({
+    height: Joi.number().integer().min(0).required(),
+  });
+
+  const { error, value } = schema.validate({ height });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getblockstats',
+    params: [Number(value.height)],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/chain-tips:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get all known blockchain tips
+ *     description: Returns information about all known tips in the block tree, including the main chain and stale forks.
+ *     responses:
+ *       200:
+ *         description: List of chain tips
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       500:
+ *         description: Server error or node not responding
+ */
+export const getChainTips = expressAsyncHandler(async (req, res, next) => {
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getchaintips',
+    params: [],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/chain-tx-stats:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get transaction statistics over recent blocks
+ *     parameters:
+ *       - in: query
+ *         name: nblocks
+ *         schema:
+ *           type: integer
+ *           example: 200
+ *         required: false
+ *         description: Number of blocks to include in stats (defaults to approx. 1 month)
+ *       - in: query
+ *         name: blockhash
+ *         schema:
+ *           type: string
+ *           example: "0000000000000000000a1b2c3d4e5f67890123456789abcdef1234567890abcd"
+ *         required: false
+ *         description: Optional block hash to start counting from (default is chain tip)
+ *     responses:
+ *       200:
+ *         description: Chain transaction stats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid parameters
+ */
+export const getChainTxStats = expressAsyncHandler(async (req, res, next) => {
+  const { nblocks, blockhash } = req.query;
+
+  const schema = Joi.object({
+    nblocks: Joi.number().integer().min(1).optional(),
+    blockhash: Joi.string().length(64).optional(),
+  });
+
+  const { error, value } = schema.validate({ nblocks, blockhash });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const params = [];
+  if (value.nblocks !== undefined) params.push(value.nblocks);
+  if (value.blockhash !== undefined) params.push(value.blockhash);
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getchaintxstats',
+    params,
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/difficulty:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get current mining difficulty
+ *     description: Returns the current difficulty target as a multiple of the minimum difficulty.
+ *     responses:
+ *       200:
+ *         description: Current network difficulty
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: number
+ *                   example: 816548445211.7812
+ *       500:
+ *         description: Node error or connection issue
+ */
+export const getDifficulty = expressAsyncHandler(async (req, res, next) => {
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getdifficulty',
+    params: [],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/mempool/ancestors/{txid}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get mempool ancestor transactions for a given TXID
+ *     parameters:
+ *       - in: path
+ *         name: txid
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "4a5e1e4b..."
+ *         description: The TXID of the transaction in the mempool
+ *       - in: query
+ *         name: verbose
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: Whether to return full transaction details or just TXIDs
+ *     responses:
+ *       200:
+ *         description: List of ancestor transactions or their TXIDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   oneOf:
+ *                     - type: object
+ *                     - type: array
+ *       400:
+ *         description: Invalid TXID format
+ */
+export const getMempoolAncestors = expressAsyncHandler(
+  async (req, res, next) => {
+    const { txid } = req.params;
+    const { verbose = true } = req.query;
+
+    const schema = Joi.object({
+      txid: Joi.string().length(64).required(),
+      verbose: Joi.boolean().optional(),
+    });
+
+    const { error, value } = schema.validate({
+      txid,
+      verbose: verbose === 'false' ? false : true,
+    });
+
+    if (error) {
+      throw new ApiError(
+        400,
+        HTTP_ERR_CODES[400],
+        'request validation failed',
+        error.details.map((d) => d.message)
+      );
+    }
+
+    const payload = {
+      jsonrpc: '1.0',
+      id: 'curltest',
+      method: 'getmempoolancestors',
+      params: [value.txid, value.verbose],
+    };
+
+    const info = await getClient().post('/', payload);
+
+    return res.status(200).json({
+      success: true,
+      data: info.data.result,
+    });
+  }
+);
+
+/**
+ * @swagger
+ * /blockchain/mempool/descendants/{txid}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get mempool descendant transactions for a given TXID
+ *     parameters:
+ *       - in: path
+ *         name: txid
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "4a5e1e4baab89f3a32518a..."
+ *         description: The TXID of the transaction in the mempool
+ *       - in: query
+ *         name: verbose
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: Whether to return full transaction details (`true`) or just TXIDs (`false`)
+ *     responses:
+ *       200:
+ *         description: List of descendant transactions or their TXIDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   oneOf:
+ *                     - type: array
+ *                       items:
+ *                         type: string
+ *                     - type: object
+ *       400:
+ *         description: Invalid TXID
+ */
+export const getMempoolDescendants = expressAsyncHandler(
+  async (req, res, next) => {
+    const { txid } = req.params;
+    const { verbose = true } = req.query;
+
+    const schema = Joi.object({
+      txid: Joi.string().length(64).required(),
+      verbose: Joi.boolean().optional(),
+    });
+
+    const { error, value } = schema.validate({
+      txid,
+      verbose: verbose === 'false' ? false : true,
+    });
+
+    if (error) {
+      throw new ApiError(
+        400,
+        HTTP_ERR_CODES[400],
+        'request validation failed',
+        error.details.map((d) => d.message)
+      );
+    }
+
+    const payload = {
+      jsonrpc: '1.0',
+      id: 'curltest',
+      method: 'getmempooldescendants',
+      params: [value.txid, value.verbose],
+    };
+
+    const info = await getClient().post('/', payload);
+
+    return res.status(200).json({
+      success: true,
+      data: info.data.result,
+    });
+  }
+);
+
+/**
+ * @swagger
+ * /blockchain/mempool/entry/{txid}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get detailed mempool information for a specific TXID
+ *     parameters:
+ *       - in: path
+ *         name: txid
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "4a5e1e4baab89f3a32518a..."
+ *         description: The transaction ID present in the mempool
+ *     responses:
+ *       200:
+ *         description: Mempool entry details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid or missing TXID
+ */
+export const getMempoolEntry = expressAsyncHandler(async (req, res, next) => {
+  const { txid } = req.params;
+
+  const schema = Joi.object({
+    txid: Joi.string().length(64).required(),
+  });
+
+  const { error, value } = schema.validate({ txid });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getmempoolentry',
+    params: [value.txid],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/mempool/info:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get summary information about the current mempool
+ *     description: Returns general statistics about the contents and status of the memory pool.
+ *     responses:
+ *       200:
+ *         description: Mempool summary information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     size:
+ *                       type: integer
+ *                       description: Number of transactions in the mempool
+ *                     bytes:
+ *                       type: integer
+ *                       description: Total size of mempool in bytes
+ *                     usage:
+ *                       type: integer
+ *                       description: Total memory usage
+ *                     maxmempool:
+ *                       type: integer
+ *                       description: Maximum allowed memory usage
+ *                     mempoolminfee:
+ *                       type: number
+ *                       description: Minimum fee for transaction to be accepted
+ *       500:
+ *         description: Server error or node not responding
+ */
+export const getMempoolInfo = expressAsyncHandler(async (req, res, next) => {
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getmempoolinfo',
+    params: [],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/mempool/raw:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get raw mempool data
+ *     description: Returns either a list of TXIDs (verbose=false) or detailed mempool transaction info (verbose=true).
+ *     parameters:
+ *       - in: query
+ *         name: verbose
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         required: false
+ *         description: Whether to return detailed transaction objects or just TXIDs
+ *     responses:
+ *       200:
+ *         description: Raw mempool contents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   oneOf:
+ *                     - type: array
+ *                       items:
+ *                         type: string
+ *                     - type: object
+ *       400:
+ *         description: Invalid query parameter
+ */
+export const getRawMempool = expressAsyncHandler(async (req, res, next) => {
+  const { verbose = false } = req.query;
+
+  const schema = Joi.object({
+    verbose: Joi.boolean().optional(),
+  });
+
+  const { error, value } = schema.validate({
+    verbose: verbose === 'true' || verbose === true,
+  });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'getrawmempool',
+    params: [value.verbose],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/txout/{txid}/{index}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get details of an unspent transaction output (UTXO)
+ *     parameters:
+ *       - in: path
+ *         name: txid
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "4a5e1e4baab89f3a32518a..."
+ *         description: The transaction ID
+ *       - in: path
+ *         name: index
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 0
+ *         description: The output index (vout)
+ *       - in: query
+ *         name: include_mempool
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: Whether to include mempool transactions in the check
+ *     responses:
+ *       200:
+ *         description: UTXO details or null if spent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   oneOf:
+ *                     - type: object
+ *                     - type: "null"
+ *       400:
+ *         description: Invalid parameters
+ */
+export const getTxOut = expressAsyncHandler(async (req, res, next) => {
+  const { txid, index } = req.params;
+  const { include_mempool = true } = req.query;
+
+  const schema = Joi.object({
+    txid: Joi.string().length(64).required(),
+    index: Joi.number().integer().min(0).required(),
+    include_mempool: Joi.boolean().optional(),
+  });
+
+  const { error, value } = schema.validate({
+    txid,
+    index,
+    include_mempool: include_mempool === 'false' ? false : true,
+  });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'gettxout',
+    params: [value.txid, value.index, value.include_mempool],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/txout-proof/{txid}:
+ *   get:
+ *     tags:
+ *     - Blockchain
+ *     summary: Get Merkle proof that a transaction is in a block
+ *     parameters:
+ *       - in: path
+ *         name: txid
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "4a5e1e4baab89f3a32518a..."
+ *         description: Transaction ID to prove
+ *       - in: query
+ *         name: blockhash
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "0000000000000000000..."
+ *         description: Optional block hash to search in
+ *     responses:
+ *       200:
+ *         description: Raw proof (hex) of transaction inclusion
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: string
+ *       400:
+ *         description: Invalid txid or query parameter
+ */
+export const getTxOutProof = expressAsyncHandler(async (req, res, next) => {
+  const { txid } = req.params;
+  const { blockhash } = req.query;
+
+  const schema = Joi.object({
+    txid: Joi.string().length(64).required(),
+    blockhash: Joi.string().length(64).optional(),
+  });
+
+  const { error, value } = schema.validate({ txid, blockhash });
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'request validation failed',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const params = [[value.txid]];
+  if (value.blockhash) params.push(value.blockhash);
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'gettxoutproof',
+    params,
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/scan-utxos:
+ *   post:
+ *     tags:
+ *     - Blockchain
+ *     summary: Scan the UTXO set for specific descriptors or addresses
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [scanobjects]
+ *             properties:
+ *               scanobjects:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     desc:
+ *                       type: string
+ *                       example: "addr(1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)"
+ *                     range:
+ *                       type: integer
+ *                       example: 1000
+ *     responses:
+ *       200:
+ *         description: UTXOs found
+ */
+export const scanUTXOSet = expressAsyncHandler(async (req, res, next) => {
+  const schema = Joi.object({
+    scanobjects: Joi.array()
+      .items(
+        Joi.object({
+          desc: Joi.string().required(),
+          range: Joi.number().optional(),
+        })
+      )
+      .min(1)
+      .required(),
+  });
+
+  const { error, value } = schema.validate(req.body);
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'Invalid scan request',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'scantxoutset',
+    params: ['start', value.scanobjects],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
+});
+
+/**
+ * @swagger
+ * /blockchain/verify-txout-proof:
+ *   post:
+ *     tags:
+ *     - Blockchain
+ *     summary: Verify Merkle proof of transaction inclusion
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - proof
+ *             properties:
+ *               proof:
+ *                 type: string
+ *                 example: "04000020abcd..."
+ *     responses:
+ *       200:
+ *         description: Verified transaction IDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ */
+export const verifyTxOutProof = expressAsyncHandler(async (req, res, next) => {
+  const schema = Joi.object({
+    proof: Joi.string().required(),
+  });
+
+  const { error, value } = schema.validate(req.body);
+
+  if (error) {
+    throw new ApiError(
+      400,
+      HTTP_ERR_CODES[400],
+      'Invalid proof format',
+      error.details.map((d) => d.message)
+    );
+  }
+
+  const payload = {
+    jsonrpc: '1.0',
+    id: 'curltest',
+    method: 'verifytxoutproof',
+    params: [value.proof],
+  };
+
+  const info = await getClient().post('/', payload);
+
+  return res.status(200).json({
+    success: true,
+    data: info.data.result,
+  });
 });
