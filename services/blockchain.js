@@ -9,7 +9,7 @@ import HTTP_ERR_CODES from '../errors/httpErrorCodes.js';
  * /blockchain/info:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get current Bitcoin chain tip info
  *     responses:
  *       200:
@@ -36,7 +36,7 @@ export const getChainInfo = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/best-block-hash:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Call Bitcoin RPC method `getbestblockhash`
  *     responses:
  *       200:
@@ -61,7 +61,7 @@ export const getGetBestblockhash = expressAsyncHandler(
  * /blockchain/block/{blockhash}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get block details by hash
  *     parameters:
  *       - in: path
@@ -135,7 +135,7 @@ export const getBlock = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/block-count:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get current Bitcoin block count
  *     responses:
  *       200:
@@ -162,7 +162,7 @@ export const getBlockCount = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/blockhash/{count}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get block hash by block height
  *     parameters:
  *       - in: path
@@ -225,7 +225,7 @@ export const getBlockHash = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/block-header/{blockhash}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get block header by block hash
  *     parameters:
  *       - in: path
@@ -302,7 +302,7 @@ export const getBlockHeader = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/block-stats/{height}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get block statistics by height
  *     parameters:
  *       - in: path
@@ -364,7 +364,7 @@ export const getBlockStats = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/chain-tips:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get all known blockchain tips
  *     description: Returns information about all known tips in the block tree, including the main chain and stale forks.
  *     responses:
@@ -405,7 +405,7 @@ export const getChainTips = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/chain-tx-stats:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get transaction statistics over recent blocks
  *     parameters:
  *       - in: query
@@ -480,7 +480,7 @@ export const getChainTxStats = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/difficulty:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get current mining difficulty
  *     description: Returns the current difficulty target as a multiple of the minimum difficulty.
  *     responses:
@@ -520,7 +520,7 @@ export const getDifficulty = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/mempool/ancestors/{txid}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get mempool ancestor transactions for a given TXID
  *     parameters:
  *       - in: path
@@ -599,7 +599,7 @@ export const getMempoolAncestors = expressAsyncHandler(
  * /blockchain/mempool/descendants/{txid}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get mempool descendant transactions for a given TXID
  *     parameters:
  *       - in: path
@@ -680,7 +680,7 @@ export const getMempoolDescendants = expressAsyncHandler(
  * /blockchain/mempool/entry/{txid}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get detailed mempool information for a specific TXID
  *     parameters:
  *       - in: path
@@ -743,7 +743,7 @@ export const getMempoolEntry = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/mempool/info:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get summary information about the current mempool
  *     description: Returns general statistics about the contents and status of the memory pool.
  *     responses:
@@ -798,7 +798,7 @@ export const getMempoolInfo = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/mempool/raw:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get raw mempool data
  *     description: Returns either a list of TXIDs (verbose=false) or detailed mempool transaction info (verbose=true).
  *     parameters:
@@ -868,7 +868,7 @@ export const getRawMempool = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/txout/{txid}/{index}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get details of an unspent transaction output (UTXO)
  *     parameters:
  *       - in: path
@@ -954,7 +954,7 @@ export const getTxOut = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/txout-proof/{txid}:
  *   get:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Get Merkle proof that a transaction is in a block
  *     parameters:
  *       - in: path
@@ -1029,7 +1029,7 @@ export const getTxOutProof = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/scan-utxos:
  *   post:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Scan the UTXO set for specific descriptors or addresses
  *     requestBody:
  *       required: true
@@ -1098,7 +1098,7 @@ export const scanUTXOSet = expressAsyncHandler(async (req, res, next) => {
  * /blockchain/verify-txout-proof:
  *   post:
  *     tags:
- *     - Blockchain
+ *     - Blockchain API
  *     summary: Verify Merkle proof of transaction inclusion
  *     requestBody:
  *       required: true

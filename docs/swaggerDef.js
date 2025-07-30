@@ -26,8 +26,12 @@ const config = {
   })),
   tags: [
     {
-      name: 'Blockchain',
-      description: 'Endpoints related to blockchain',
+      name: 'Blockchain API',
+      description: 'Endpoints related to Blockchain API',
+    },
+    {
+      name: 'Control API',
+      description: 'Endpoints related to Control API',
     },
   ],
 };
