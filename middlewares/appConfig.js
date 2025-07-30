@@ -4,7 +4,6 @@ import { stringify } from 'qs';
 // project
 import asyncHandler from '../async/async.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
-import logger from '../config/winston.js';
 import { envConfig } from '../config/envConf.js';
 
 /**
@@ -49,7 +48,6 @@ export const includeAppConfig = (appConfigKey) =>
         };
       }
     } catch (error) {
-      logger.error(error);
       return next(
         new ErrorResponse(
           'Error getting app config, internal server error.',

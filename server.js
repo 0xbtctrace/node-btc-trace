@@ -1,17 +1,14 @@
 import cors from 'cors';
 import express from 'express';
 import './config/envConf.js'; // import env variables before importing other modules
-import './config/axiosConf.js';
 
 // routes
 import blockchain from './routes/blockchain.js';
 
-// db connection
-import './config/db.js';
 import { httpLogger, logger } from './utils/logger.js';
 
+import errorResponseHandler from './errors/errorResponseHandler.js';
 // middlewares
-import { errorResponseHandler } from './middlewares/error.js';
 import { envConfig } from './config/envConf.js';
 import {
   camelCaseRequest,

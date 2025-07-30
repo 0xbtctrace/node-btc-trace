@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { envConfig } from './envConf.js';
+import { parseAxiosError } from '../errors/axios.js';
 
 export const getClient = () => {
   // validate env variables
@@ -17,11 +18,21 @@ export const getClient = () => {
     `${envConfig.SELF_HOSTED_BTC_USERNAME}:${envConfig.SELF_HOSTED_BTC_PASSWORD}`
   ).toString('base64')}`;
 
-  return axios.create({
+  const client = axios.create({
     baseURL: envConfig.SELF_HOSTED_BTC_HOST,
     headers: {
       Authorization: authToken,
       'Content-Type': 'application/json',
     },
   });
+
+  client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      // convert axios error into API error
+      throw parseAxiosError(error);
+    }
+  );
+
+  return client;
 };

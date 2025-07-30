@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { envConfig } from '../config/envConf.js';
+import { readPackageSync } from 'read-pkg';
 
 // Emulate __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -16,14 +18,12 @@ const config = {
   openapi: '3.0.0',
   info: {
     title: 'Bitcoin Block Explorer API',
-    version: '0.0.1',
+    version: readPackageSync().version,
     description,
   },
-  servers: [
-    {
-      url: 'https://api.btctrace.ai',
-    },
-  ],
+  servers: envConfig.SWAGGER_SERVERS.map((host) => ({
+    url: host,
+  })),
   tags: [
     {
       name: 'Blockchain',
