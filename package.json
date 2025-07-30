@@ -1,6 +1,6 @@
 {
   "name": "node-btc-trace",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An open-source, developer-friendly REST API built with Node.js and Express to explore Bitcoin blockchain data like blocks and chain status.",
   "main": "server.js",
   "type": "module",
