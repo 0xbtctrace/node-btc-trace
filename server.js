@@ -40,7 +40,18 @@ const swaggerSpec = swaggerJSDoc({
   definition: swaggerDef,
   apis: ['./services/*.js'],
 });
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(
+  '/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'BTC Trace API Docs',
+    customfavIcon: 'https://avatars.githubusercontent.com/u/223154378?v=4',
+    customCssUrl: '/static/swagger-custom.css',
+  })
+);
+
+// serve public folder
+app.use('/static', express.static('public'));
 
 // mount each of the routes here
 app.use('/blockchain', blockchain);
