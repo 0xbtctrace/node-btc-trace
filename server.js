@@ -5,6 +5,8 @@ import './config/envConf.js'; // import env variables before importing other mod
 // routes
 import blockchain from './routes/blockchain.js';
 import control from './routes/control.js';
+import mining from './routes/mining.js';
+import network from './routes/network.js';
 
 import { httpLogger, logger } from './utils/logger.js';
 
@@ -43,6 +45,8 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // mount each of the routes here
 app.use('/blockchain', blockchain);
 app.use('/control', control);
+app.use('/mining', mining);
+app.use('/network', network);
 
 // finally the error handler on the chain
 app.use(errorResponseHandler);

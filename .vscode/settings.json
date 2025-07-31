@@ -9,6 +9,7 @@
     "decrby",
     "filtertype",
     "getblockfilter",
+    "hashrate",
     "leaderboard",
     "lrange",
     "nblocks",

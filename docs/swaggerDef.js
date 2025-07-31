@@ -33,6 +33,14 @@ const config = {
       name: 'Control API',
       description: 'Endpoints related to Control API',
     },
+    {
+      name: 'Mining API',
+      description: 'Endpoints related to Mining API',
+    },
+    {
+      name: 'Network API',
+      description: 'Endpoints related to Network API',
+    },
   ],
 };
 

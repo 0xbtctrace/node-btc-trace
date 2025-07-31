@@ -1,8 +1,5 @@
-import Joi from 'joi';
 import { getClient } from '../config/btcNodeConfig.js';
 import expressAsyncHandler from 'express-async-handler';
-import ApiError from '../errors/ApiError.js';
-import HTTP_ERR_CODES from '../errors/httpErrorCodes.js';
 
 /**
  * @swagger
