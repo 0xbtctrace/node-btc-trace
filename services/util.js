@@ -350,10 +350,10 @@ export const getIndexInfo = expressAsyncHandler(async (req, res, next) => {
 
 /**
  * @swagger
- * /wallet/validate-address:
+ * /util/validate-address:
  *   get:
  *     tags:
- *     - Wallet API
+ *     - Util API
  *     summary: Validate a Bitcoin address and return address details
  *     parameters:
  *       - in: query
@@ -411,10 +411,10 @@ export const validateAddress = expressAsyncHandler(async (req, res, next) => {
 
 /**
  * @swagger
- * /wallet/verify-message:
+ * /util/verify-message:
  *   post:
  *     tags:
- *     - Wallet API
+ *     - Util API
  *     summary: Verify that a signed message belongs to a Bitcoin address
  *     requestBody:
  *       required: true
@@ -497,7 +497,7 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
  *         name: hash
  *         schema:
  *           type: string
- *             example: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+ *           example: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
  *         required: true
  *         description: The block hash to retrieve the decimal for
  *     responses:
