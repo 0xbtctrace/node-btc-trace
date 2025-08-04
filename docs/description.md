@@ -42,7 +42,7 @@ This allows full control over the backend RPC node and can be used in air-gapped
 ## 📘 Field Naming Conventions
 
 - All **JSON responses** use `snake_case`
-- All **request parameters, query strings, and request bodies** use `camelCase`
+- All **JSON responses, request parameters, query strings, and request bodies** use `camelCase`
 
 ---
 

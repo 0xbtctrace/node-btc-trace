@@ -7,6 +7,8 @@ import blockchain from './routes/blockchain.js';
 import control from './routes/control.js';
 import mining from './routes/mining.js';
 import network from './routes/network.js';
+import util from './routes/util.js';
+import wallet from './routes/wallet.js';
 
 import { httpLogger, logger } from './utils/logger.js';
 
@@ -58,6 +60,8 @@ app.use('/blockchain', blockchain);
 app.use('/control', control);
 app.use('/mining', mining);
 app.use('/network', network);
+app.use('/util', util);
+app.use('/wallet', wallet);
 
 // finally the error handler on the chain
 app.use(errorResponseHandler);

@@ -41,6 +41,14 @@ const config = {
       name: 'Network API',
       description: 'Endpoints related to Network API',
     },
+    {
+      name: 'Util API',
+      description: 'Endpoints related to Util API',
+    },
+    {
+      name: 'Wallet API',
+      description: 'Endpoints related to Wallet API',
+    },
   ],
 };
 
