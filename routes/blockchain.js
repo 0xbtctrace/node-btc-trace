@@ -21,6 +21,7 @@ import {
   getTxOutProof,
   scanUTXOSet,
   verifyTxOutProof,
+  getBlockHashDecimals,
 } from '../services/blockchain.js';
 
 const router = express.Router();
@@ -31,6 +32,7 @@ router.route('/best-block-hash').get(getGetBestblockhash);
 router.route('/block-count').get(getBlockCount);
 router.route('/block/:blockhash').get(getBlock);
 router.route('/blockhash/:count').get(getBlockHash);
+router.route('/block-hash-decimals/:height').get(getBlockHashDecimals);
 router.route('/block-header/:blockhash').get(getBlockHeader);
 router.route('/block-stats/:height').get(getBlockStats);
 router.route('/chain-tips').get(getChainTips);

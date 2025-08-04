@@ -3,6 +3,7 @@ import { getClient } from '../config/btcNodeConfig.js';
 import expressAsyncHandler from 'express-async-handler';
 import ApiError from '../errors/ApiError.js';
 import HTTP_ERR_CODES from '../errors/httpErrorCodes.js';
+import { getHexSuffixDecimals } from '../utils/generals.js';
 
 /**
  * @swagger
@@ -482,3 +483,76 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
     data: info.data.result,
   });
 });
+
+/**
+ * @swagger
+ * /util/hash-to-decimal:
+ *   get:
+ *     tags:
+ *     - Util API
+ *     summary: Get decimal block hash
+ *     description: Return decimal equivalents for the last 1–16 hex digits (up to 64-bit values) of the hash.
+ *     parameters:
+ *       - in: query
+ *         name: hash
+ *         schema:
+ *           type: string
+ *             example: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+ *         required: true
+ *         description: The block hash to retrieve the decimal for
+ *     responses:
+ *       200:
+ *         description: decimal values
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   example:
+ *                    0_15: "4"
+ *                    0_255: "244"
+ *                    0_4095: "2292"
+ *                    0_65535: "31860"
+ *                    0_1048575: "254100"
+ *                    0_16777215: "263716"
+ *                    0_268435455: "15473860"
+ *                    0_4294967295: "79883724"
+ *                    0_68719476735: "272204631"
+ *                    0_1099511627775: "4330074104"
+ *                    0_17592186044415: "38416838404"
+ *                    0_281474976710655: "721889139388"
+ *                    0_4503599627370495: "2148499982157"
+ *                    0_72057594037927935: "13923820928020"
+ *                    0_1152921504606846975: "911012549478444"
+ *                    0_18446744073709551615: "391020293812746235"
+ *       400:
+ *         description: Invalid block hash
+ */
+export const getBlockHashDecimals = expressAsyncHandler(
+  async (req, res, next) => {
+    const schema = Joi.object({
+      hash: Joi.string().required(),
+    });
+
+    const { error, value } = schema.validate(req.query);
+
+    if (error) {
+      throw new ApiError(
+        400,
+        HTTP_ERR_CODES[400],
+        'Request validation failed',
+        error.details.map((d) => d.message)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: getHexSuffixDecimals(value.hash),
+    });
+  }
+);
