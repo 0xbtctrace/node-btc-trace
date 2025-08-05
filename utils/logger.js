@@ -12,12 +12,12 @@ const istNow = () =>
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    fractionalSecondDigits: 3, // ✅ shows milliseconds
+    fractionalSecondDigits: 3, // shows milliseconds
     hour12: false,
   });
 
 export const logger = pino({
-  level: isProd ? 'info' : 'debug', // ⬅️ Only logs 'debug' in dev,
+  level: isProd ? 'warn' : 'debug', // Only logs 'debug' in dev,
   formatters: {
     log(object) {
       return {
@@ -26,20 +26,18 @@ export const logger = pino({
       };
     },
   },
-  transport: !isProd
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true, // enable colors
-          translateTime: false,
-          ignore: 'pid,hostname', // skip less useful fields
-        },
-      }
-    : undefined, // no pretty in prod
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true, // enable colors
+      translateTime: false,
+      ignore: 'pid,hostname', // skip less useful fields
+    },
+  }, // no pretty in prod
 });
 
 export const httpLogger = pinoHttp({
-  level: isProd ? 'info' : 'debug', // ⬅️ Only logs 'debug' in dev,
+  level: isProd ? 'warn' : 'debug', // ⬅️ Only logs 'debug' in dev,
   genReqId: (req) => {
     const defaultReqId = req.id;
     if (defaultReqId != undefined) {
@@ -64,13 +62,11 @@ export const httpLogger = pinoHttp({
       return res;
     },
   },
-  transport: !isProd
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true, // enable colors
-          translateTime: 'yyyy-mm-dd HH:MM:ss o', // includes offset like "+0530"
-        },
-      }
-    : undefined, // no pretty in prod
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true, // enable colors
+      translateTime: 'yyyy-mm-dd HH:MM:ss o', // includes offset like "+0530"
+    },
+  }, // no pretty in prod
 });

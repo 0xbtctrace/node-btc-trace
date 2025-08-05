@@ -14,12 +14,20 @@ const errorResponseHandler = (err, req, res, next) => {
     },
   };
 
-  // Include stack trace only in development
-  if (process.env.NODE_ENV === 'development') {
-    errorResponse.error.stack = err.stack;
+  errorResponse.error.stack = err.stack;
+
+  // include req, res object if it's an production for easy debugging..
+  if (process.env.NODE_ENV === 'production') {
+    errorResponse.req = req;
   }
 
   logger.error(errorResponse);
+
+  // Exclude stack in production env
+  if (process.env.NODE_ENV === 'production') {
+    delete errorResponse.error.stack;
+    delete errorResponse.req;
+  }
 
   res.status(status).json(errorResponse);
 };

@@ -539,6 +539,8 @@ export const getBlockHashDecimals = expressAsyncHandler(
       hash: Joi.string().required(),
     });
 
+    throw new Error('Test');
+
     const { error, value } = schema.validate(req.query);
 
     if (error) {
