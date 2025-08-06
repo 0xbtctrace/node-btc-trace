@@ -491,7 +491,7 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
  *     tags:
  *     - Util API
  *     summary: Get decimal block hash
- *     description: Return decimal equivalents for the last 1–16 hex digits (up to 64-bit values) of the hash.
+ *     description: Return decimal equivalents for the hex digits of the hash.
  *     parameters:
  *       - in: query
  *         name: hash
@@ -514,22 +514,22 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
  *                 data:
  *                   type: object
  *                   example:
- *                    0_15: "4"
- *                    0_255: "244"
- *                    0_4095: "2292"
- *                    0_65535: "31860"
- *                    0_1048575: "254100"
- *                    0_16777215: "263716"
- *                    0_268435455: "15473860"
- *                    0_4294967295: "79883724"
- *                    0_68719476735: "272204631"
- *                    0_1099511627775: "4330074104"
- *                    0_17592186044415: "38416838404"
- *                    0_281474976710655: "721889139388"
- *                    0_4503599627370495: "2148499982157"
- *                    0_72057594037927935: "13923820928020"
- *                    0_1152921504606846975: "911012549478444"
- *                    0_18446744073709551615: "391020293812746235"
+ *                    u4: "4"
+ *                    u8: "244"
+ *                    u12: "2292"
+ *                    u16: "31860"
+ *                    u20: "254100"
+ *                    u24: "263716"
+ *                    u28: "15473860"
+ *                    u32: "79883724"
+ *                    u36: "272204631"
+ *                    u40: "4330074104"
+ *                    u44: "38416838404"
+ *                    u48: "721889139388"
+ *                    u52: "2148499982157"
+ *                    u56: "13923820928020"
+ *                    u60: "911012549478444"
+ *                    u64: "391020293812746235"
  *       400:
  *         description: Invalid block hash
  */
@@ -538,8 +538,6 @@ export const getBlockHashDecimals = expressAsyncHandler(
     const schema = Joi.object({
       hash: Joi.string().required(),
     });
-
-    throw new Error('Test');
 
     const { error, value } = schema.validate(req.query);
 

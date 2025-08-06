@@ -37,22 +37,22 @@ export const isHostSyntaxValid = (host) => {
  */
 export const getHexSuffixDecimals = (hexHash) => {
   const suffixLengths = {
-    '0_15': 1, // 4 bits
-    '0_255': 2, // 8 bits
-    '0_4095': 3, // 12 bits
-    '0_65535': 4, // 16 bits
-    '0_1048575': 5, // 20 bits
-    '0_16777215': 6, // 24 bits
-    '0_268435455': 7, // 28 bits
-    '0_4294967295': 8, // 32 bits
-    '0_68719476735': 9, // 36 bits
-    '0_1099511627775': 10, // 40 bits
-    '0_17592186044415': 11, // 44 bits
-    '0_281474976710655': 12, // 48 bits
-    '0_4503599627370495': 13, // 52 bits
-    '0_72057594037927935': 14, // 56 bits
-    '0_1152921504606846975': 15, // 60 bits
-    '0_18446744073709551615': 16, // 64 bits
+    u4: 1, // 1 hex char = 4 bits
+    u8: 2, // 2 hex chars = 8 bits
+    u12: 3, // 3 hex chars = 12 bits
+    u16: 4, // 4 hex chars = 16 bits
+    u20: 5, // 5 hex chars = 20 bits
+    u24: 6, // 6 hex chars = 24 bits
+    u28: 7, // 7 hex chars = 28 bits
+    u32: 8, // 8 hex chars = 32 bits
+    u36: 9, // 9 hex chars = 36 bits
+    u40: 10, // 10 hex chars = 40 bits
+    u44: 11, // 11 hex chars = 44 bits
+    u48: 12, // 12 hex chars = 48 bits
+    u52: 13, // 13 hex chars = 52 bits
+    u56: 14, // 14 hex chars = 56 bits
+    u60: 15, // 15 hex chars = 60 bits
+    u64: 16, // 16 hex chars = 64 bits
   };
 
   const decimals = {};
