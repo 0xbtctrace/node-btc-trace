@@ -490,19 +490,21 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
  *   get:
  *     tags:
  *     - Util API
- *     summary: Get decimal block hash
- *     description: Return decimal equivalents for the hex digits of the hash.
+ *     summary: Convert hash suffixes to decimal
+ *     description: |
+ *       Given a hexadecimal hash, this utility extracts the last 1 to 12 hex characters,
+ *       returning both the hex and decimal values for each.
  *     parameters:
  *       - in: query
  *         name: hash
+ *         required: true
  *         schema:
  *           type: string
- *           example: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
- *         required: true
- *         description: The block hash to retrieve the decimal for
+ *           example: "00000000000000000005a8b1937f5150ed17f7e89c99fc26d2ad7fe3c4d7c8f4"
+ *         description: The full hexadecimal hash (e.g., a Bitcoin block hash)
  *     responses:
  *       200:
- *         description: decimal values
+ *         description: Hex and decimal values from the last N hex characters
  *         content:
  *           application/json:
  *             schema:
@@ -514,24 +516,20 @@ export const verifyMessage = expressAsyncHandler(async (req, res, next) => {
  *                 data:
  *                   type: object
  *                   example:
- *                    u4: "4"
- *                    u8: "244"
- *                    u12: "2292"
- *                    u16: "31860"
- *                    u20: "254100"
- *                    u24: "263716"
- *                    u28: "15473860"
- *                    u32: "79883724"
- *                    u36: "272204631"
- *                    u40: "4330074104"
- *                    u44: "38416838404"
- *                    u48: "721889139388"
- *                    u52: "2148499982157"
- *                    u56: "13923820928020"
- *                    u60: "911012549478444"
- *                    u64: "391020293812746235"
+ *                     last_1_hex:  { hex: "4", decimal: 4 }
+ *                     last_2_hex:  { hex: "f4", decimal: 244 }
+ *                     last_3_hex:  { hex: "8f4", decimal: 2292 }
+ *                     last_4_hex:  { hex: "c8f4", decimal: 51444 }
+ *                     last_5_hex:  { hex: "7c8f4", decimal: 510452 }
+ *                     last_6_hex:  { hex: "d7c8f4", decimal: 14121300 }
+ *                     last_7_hex:  { hex: "4d7c8f4", decimal: 81384756 }
+ *                     last_8_hex:  { hex: "c4d7c8f4", decimal: 3303430644 }
+ *                     last_9_hex:  { hex: "3c4d7c8f4", decimal: 25963064436 }
+ *                     last_10_hex: { hex: "e3c4d7c8f4", decimal: 978541389556 }
+ *                     last_11_hex: { hex: "fe3c4d7c8f4", decimal: 17475809133428 }
+ *                     last_12_hex: { hex: "7fe3c4d7c8f4", decimal: 140676060755572 }
  *       400:
- *         description: Invalid block hash
+ *         description: Invalid or missing hash parameter
  */
 export const getBlockHashDecimals = expressAsyncHandler(
   async (req, res, next) => {

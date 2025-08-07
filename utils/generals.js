@@ -22,45 +22,28 @@ export const isHostSyntaxValid = (host) => {
 
 /**
  * Converts the suffix of a hexadecimal hash string into decimal values
- * for various bit ranges from 4 bits (0–15) up to 64 bits (0–18,446,744,073,709,551,615).
+ * for the last 1 to 12 hex characters.
  *
  * @param {string} hexHash - A hexadecimal string (without `0x` prefix).
- *                           Should be at least 16 characters long to support 64-bit conversion.
- * @returns {Object} A dictionary where keys are value ranges and values are
- *                   decimal string equivalents of the last N hex characters.
+ * @returns {Object} An object with keys like `last_1_hex` to `last_12_hex`,
+ *                   each containing { hex, decimal }.
  *
  * @example
- * const hexHash = 'abcdef1234567890fedcba9876543210abcdef1234567890';
- * const decimals = getHexSuffixDecimals(hexHash);
- * console.log(decimals['0_255']); // e.g. "144"
- * console.log(decimals['0_4294967295']); // e.g. "305419896"
+ * const result = getHexSuffixDecimals('...hash...');
+ * console.log(result.last_6_hex); // { hex: "d7c8f4", decimal: "14121300" }
  */
 export const getHexSuffixDecimals = (hexHash) => {
-  const suffixLengths = {
-    u4: 1, // 1 hex char = 4 bits
-    u8: 2, // 2 hex chars = 8 bits
-    u12: 3, // 3 hex chars = 12 bits
-    u16: 4, // 4 hex chars = 16 bits
-    u20: 5, // 5 hex chars = 20 bits
-    u24: 6, // 6 hex chars = 24 bits
-    u28: 7, // 7 hex chars = 28 bits
-    u32: 8, // 8 hex chars = 32 bits
-    u36: 9, // 9 hex chars = 36 bits
-    u40: 10, // 10 hex chars = 40 bits
-    u44: 11, // 11 hex chars = 44 bits
-    u48: 12, // 12 hex chars = 48 bits
-    u52: 13, // 13 hex chars = 52 bits
-    u56: 14, // 14 hex chars = 56 bits
-    u60: 15, // 15 hex chars = 60 bits
-    u64: 16, // 16 hex chars = 64 bits
-  };
+  const output = {};
+  const maxLength = Math.min(12, hexHash.length);
 
-  const decimals = {};
-
-  for (const [range, len] of Object.entries(suffixLengths)) {
-    const hexPart = hexHash.slice(-len); // extract last `len` hex digits
-    decimals[range] = BigInt('0x' + hexPart).toString(); // convert to decimal string
+  for (let i = 1; i <= maxLength; i++) {
+    const hexPart = hexHash.slice(-i);
+    const decimal = BigInt('0x' + hexPart).toString();
+    output[`last_${i}_hex`] = {
+      hex: hexPart,
+      decimal,
+    };
   }
 
-  return decimals;
+  return output;
 };
